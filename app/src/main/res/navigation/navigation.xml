@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/navigation"
+    app:startDestination="@id/travelsList">
+
+    <fragment
+        android:id="@+id/travelsList"
+        tools:layout="@layout/travels_list_fragment"
+        android:name="com.greenbee.traveler.presentation.travelslist.TravelList"
+        android:label="TravelsList" >
+        <action
+            android:id="@+id/action_travelsList_to_tripDetails"
+            app:destination="@id/tripDetails" >
+        </action>
+    </fragment>
+    <fragment
+        android:id="@+id/tripDetails"
+        android:name="com.greenbee.traveler.presentation.traveldetails.TripDetails"
+        android:label="fragment_trip_details"
+        tools:layout="@layout/trip_details_fragment" >
+        <action
+            android:id="@+id/action_tripDetails_to_travelsList"
+            app:destination="@id/travelsList" />
+        <argument
+            android:name="tripId"
+            app:argType="long" />
+    </fragment>
+</navigation>

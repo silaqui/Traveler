@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="viewModel"
+            type="com.greenbee.traveler.presentation.traveldetails.TripDetailsViewModel" />
+
+    </data>
+
+    <RelativeLayout
+        android:id="@+id/realative"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".presentation.traveldetails.TripDetails">
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/background_image"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            app:srcCompat="@drawable/mountains" />
+
+        <androidx.cardview.widget.CardView
+            tools:visibility="visible"
+            android:visibility="gone"
+            android:id="@+id/categories_card"
+
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+
+            android:layout_below="@+id/title_card"
+            android:layout_alignParentBottom="true"
+
+            android:layout_marginStart="32dp"
+            android:layout_marginEnd="32dp"
+            android:layout_marginBottom="32dp"
+
+            app:cardCornerRadius="16dp"
+            app:cardElevation="8dp"
+
+            />
+
+        <androidx.cardview.widget.CardView
+            tools:visibility="visible"
+            android:visibility="gone"
+            android:id="@+id/title_card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="32dp"
+            android:layout_marginEnd="32dp"
+            android:layout_marginBottom="32dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="4dp">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/travel_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="16dp"
+                    android:text="@{viewModel.trip.title}"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Large"
+                    android:textColor="#555555"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:text="Wyjazd do Tygryskowa" />
+
+                <ImageView
+                    android:id="@+id/travel_date_icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/travel_title"
+                    android:layout_alignParentStart="true"
+                    android:tint="#555555"
+                    app:layout_constraintBottom_toBottomOf="@+id/travel_date"
+                    app:layout_constraintStart_toStartOf="@+id/travel_title"
+                    app:layout_constraintTop_toTopOf="@+id/travel_date"
+                    app:srcCompat="@drawable/ic_date_range_black_24dp" />
+
+                <TextView
+                    android:id="@+id/travel_date"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/travel_title"
+                    android:layout_alignParentEnd="true"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginEnd="16dp"
+                    android:layout_marginBottom="16dp"
+                    android:layout_toEndOf="@+id/travel_date_icon"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                    android:textColor="#555555"
+                    app:formattedData="@{viewModel.trip.date}"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/travel_date_icon"
+                    app:layout_constraintTop_toBottomOf="@+id/travel_title"
+                    tools:text="23.05.2020">
+                </TextView>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.cardview.widget.CardView>
+
+    </RelativeLayout>
+</layout>
