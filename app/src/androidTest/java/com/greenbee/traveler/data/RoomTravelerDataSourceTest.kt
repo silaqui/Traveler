@@ -4,7 +4,6 @@ import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import com.greenbee.traveler.data.db.TravelerRoomDataBase
-import com.greenbee.traveler.data.db.TripDao
 import com.greenbee.traveler.domain.entities.Category
 import com.greenbee.traveler.domain.entities.Item
 import com.greenbee.traveler.domain.entities.Trip
@@ -41,10 +40,10 @@ class RoomTravelerDataSourceTest {
         runBlocking {
             //given
             //when
-            val actual = tested.getTrips()
+            val actual = tested.getTrips().fold({ null }, { it })
             //then
             assertNotNull(actual)
-            assertEquals(actual.size, 0)
+            assertEquals(actual!!.size, 0)
         }
     }
 
@@ -53,12 +52,12 @@ class RoomTravelerDataSourceTest {
         runBlocking {
             //given
             //when
-            tested.addNewTrip(tripOne)
-            tested.addNewTrip(tripTwo)
-            val actual = tested.getTrips()
+            tested.addOrUpdateTrip(tripOne)
+            tested.addOrUpdateTrip(tripTwo)
+            val actual = tested.getTrips().fold({ null }, { it })
             //then
             assertNotNull(actual)
-            assertThat(actual.size, equalTo(2))
+            assertThat(actual!!.size, equalTo(2))
         }
     }
 
@@ -66,27 +65,30 @@ class RoomTravelerDataSourceTest {
     fun shouldRemoveTrip() {
         runBlocking {
             //given
-            val tripOneId = tested.addNewTrip(tripOne)
-            tested.addNewTrip(tripTwo)
-            tested.addNewCategory(Trip(1), categoryOne)
-            tested.addNewCategory(Trip(1), categoryTwo)
+            val tripOneId = tested.addOrUpdateTrip(tripOne).fold({ null }, { it })
+            tested.addOrUpdateTrip(tripTwo)
+            tested.addOrUpdateCategory(Trip(1), categoryOne)
+            tested.addOrUpdateCategory(Trip(1), categoryTwo)
             tested.addOrUpdateItem(tripOne, Category(1), itemOne)
             tested.addOrUpdateItem(tripOne, Category(1), itemTwo)
-            val toRemove = tested.getTrips().find { it.id == tripOneId.toLong() }!!
-            val categories = tested.getCategory(toRemove)
+            val toRemove =
+                tested.getTrips().fold({ null }, { it })!!.find { it.id == tripOneId!!.toLong() }!!
+            val categories = tested.getCategory(toRemove).fold({ null }, { it })
             //when
             tested.removeTrip(toRemove)
-            val actual = tested.getTrips()
+            val actual = tested.getTrips().fold({ null }, { it })
             //then
-            val cleanedCategories = tested.getCategory(toRemove)
+            val cleanedCategories = tested.getCategory(toRemove).fold({ null }, { it })
             val cleanedItems = ArrayList<Item>()
-            for (category in categories) {
-                cleanedItems.addAll(tested.getItems(toRemove,category))
+            for (category in categories!!) {
+                cleanedItems.addAll(
+                    tested.getItems(toRemove, category).fold({ ArrayList<Item>() }, { it })
+                )
             }
             assertNotNull(actual)
-            assertThat(actual.size, equalTo(1))
+            assertThat(actual!!.size, equalTo(1))
             assertThat(actual[0].title, equalTo(tripTwo.title))
-            assertThat(cleanedCategories.size, equalTo(0))
+            assertThat(cleanedCategories!!.size, equalTo(0))
             assertThat(cleanedItems.size, equalTo(0))
         }
     }
@@ -95,15 +97,15 @@ class RoomTravelerDataSourceTest {
     fun shouldInsertCategory() {
         runBlocking {
             //given
-            tested.addNewTrip(tripOne)
-            val trip = tested.getTrips()[0]
+            tested.addOrUpdateTrip(tripOne)
+            val trip = tested.getTrips().fold({ null }, { it[0] })
             //when
-            tested.addNewCategory(trip, categoryOne)
-            tested.addNewCategory(trip, categoryTwo)
-            val actual = tested.getCategory(trip)
+            tested.addOrUpdateCategory(trip!!, categoryOne)
+            tested.addOrUpdateCategory(trip, categoryTwo)
+            val actual = tested.getCategory(trip).fold({ null }, { it })
             //then
             assertNotNull(actual)
-            assertThat(actual.size, equalTo(2))
+            assertThat(actual!!.size, equalTo(2))
             assertThat(actual[0].title, equalTo(categoryOne.title))
         }
     }
@@ -112,22 +114,24 @@ class RoomTravelerDataSourceTest {
     fun shouldRemoveCategory() {
         runBlocking {
             //given
-            tested.addNewTrip(tripOne)
-            val trip = tested.getTrips()[0]
-            val categoryOneId = tested.addNewCategory(trip, categoryOne)
-            tested.addNewCategory(trip, categoryTwo)
+            tested.addOrUpdateTrip(tripOne)
+            val trip = tested.getTrips().fold({ null }, { it[0] })
+            val categoryOneId =
+                tested.addOrUpdateCategory(trip!!, categoryOne).fold({ "ERROR" }, { it })
+            tested.addOrUpdateCategory(trip, categoryTwo)
             tested.addOrUpdateItem(tripOne, Category(1), itemOne)
             tested.addOrUpdateItem(tripOne, Category(1), itemTwo)
-            val toRemove = tested.getCategory(trip).find { it.id == categoryOneId.toLong() }
+            val toRemove = tested.getCategory(trip).fold({ null }, { it })!!
+                .find { it.id == categoryOneId.toLong() }
             //when
             tested.removeCategory(trip, toRemove!!)
-            val actual = tested.getCategory(trip)
+            val actual = tested.getCategory(trip).fold({ null }, { it })
             //then
-            val cleanedItems = tested.getItems(trip,toRemove)
+            val cleanedItems = tested.getItems(trip, toRemove).fold({ null }, { it })
             assertNotNull(actual)
-            assertThat(actual.size, equalTo(1))
+            assertThat(actual!!.size, equalTo(1))
             assertThat(actual[0].title, equalTo(categoryTwo.title))
-            assertThat(cleanedItems.size, equalTo(0))
+            assertThat(cleanedItems!!.size, equalTo(0))
         }
     }
 
@@ -135,17 +139,20 @@ class RoomTravelerDataSourceTest {
     fun shouldAddItem() {
         runBlocking {
             //given
-            val tripId = tested.addNewTrip(tripOne).toLong()
-            val categoryIdOne = tested.addNewCategory(Trip(tripId), categoryOne).toLong()
-            val categoryIdTwo = tested.addNewCategory(Trip(tripId), categoryTwo).toLong()
+            val tripId = tested.addOrUpdateTrip(tripOne).fold({ -1L }, { it.toLong() })
+            val categoryIdOne =
+                tested.addOrUpdateCategory(Trip(tripId), categoryOne).fold({ -1L }, { it.toLong() })
+            val categoryIdTwo =
+                tested.addOrUpdateCategory(Trip(tripId), categoryTwo).fold({ -1L }, { it.toLong() })
             //when
             tested.addOrUpdateItem(Trip(tripId), Category(categoryIdOne), itemOne)
             tested.addOrUpdateItem(Trip(tripId), Category(categoryIdOne), itemTwo)
             tested.addOrUpdateItem(Trip(tripId), Category(categoryIdTwo), itemTwo)
-            val actual = tested.getItems(Trip(tripId), Category(categoryIdOne))
+            val actual =
+                tested.getItems(Trip(tripId), Category(categoryIdOne)).fold({ null }, { it })
             //then
             assertNotNull(actual)
-            assertThat(actual.size, equalTo(2))
+            assertThat(actual!!.size, equalTo(2))
             assertThat(actual[0].name, equalTo(itemOne.name))
             assertThat(actual[0].isDone, equalTo(false))
         }
@@ -155,11 +162,12 @@ class RoomTravelerDataSourceTest {
     fun shouldUpdateItem() {
         runBlocking {
             //given
-            tested.addNewTrip(tripOne)
-            tested.addNewCategory(Trip(1), categoryOne)
-            tested.addNewCategory(Trip(1), categoryTwo)
+            tested.addOrUpdateTrip(tripOne)
+            tested.addOrUpdateCategory(Trip(1), categoryOne)
+            tested.addOrUpdateCategory(Trip(1), categoryTwo)
             //when
-            val itemOneId = tested.addOrUpdateItem(Trip(1), Category(1), itemOne)
+            val itemOneId =
+                tested.addOrUpdateItem(Trip(1), Category(1), itemOne).fold({ -1L }, { it.toLong() })
             tested.addOrUpdateItem(Trip(1), Category(1), itemTwo)
             tested.addOrUpdateItem(Trip(1), Category(2), itemTwo)
             tested.addOrUpdateItem(
@@ -167,7 +175,7 @@ class RoomTravelerDataSourceTest {
                 Category(1),
                 Item(itemOneId.toLong(), itemOne.name, true)
             )
-            val actual = tested.getItems(Trip(1), Category(1))
+            val actual = tested.getItems(Trip(1), Category(1)).fold({ ArrayList<Item>() }, { it })
             //then
             assertNotNull(actual)
             assertThat(actual.size, equalTo(2))
@@ -180,15 +188,17 @@ class RoomTravelerDataSourceTest {
     fun shouldRemoveItem() {
         runBlocking {
             //given
-            tested.addNewTrip(tripOne)
-            tested.addNewCategory(Trip(1), categoryOne)
-            val itemOneId = tested.addOrUpdateItem(Trip(1), Category(1), itemOne)
+            tested.addOrUpdateTrip(tripOne)
+            tested.addOrUpdateCategory(Trip(1), categoryOne)
+            val itemOneId =
+                tested.addOrUpdateItem(Trip(1), Category(1), itemOne).fold({ -1L }, { it.toLong() })
             tested.addOrUpdateItem(Trip(1), Category(1), itemTwo)
             val toRemove =
-                tested.getItems(Trip(1), Category(1)).find { it.id == itemOneId.toLong() }
+                tested.getItems(Trip(1), Category(1)).fold({ null }, { it })!!
+                    .find { it.id == itemOneId.toLong() }
             //when
             tested.removeItem(Trip(1), Category(1), toRemove!!)
-            val actual = tested.getItems(Trip(1), Category(1))
+            val actual = tested.getItems(Trip(1), Category(1)).fold({ ArrayList<Item>() }, { it })
             //then
             assertNotNull(actual)
             assertThat(actual.size, equalTo(1))
@@ -200,13 +210,13 @@ class RoomTravelerDataSourceTest {
     fun shouldGetTripDetails() {
         runBlocking {
             //given
-            tested.addNewTrip(tripOne)
-            tested.addNewCategory(Trip(1), categoryOne)
-            tested.addNewCategory(Trip(1), categoryTwo)
+            tested.addOrUpdateTrip(tripOne)
+            tested.addOrUpdateCategory(Trip(1), categoryOne)
+            tested.addOrUpdateCategory(Trip(1), categoryTwo)
             tested.addOrUpdateItem(tripOne, Category(1), itemOne)
             tested.addOrUpdateItem(tripOne, Category(1), itemTwo)
             //when
-            val actual = tested.getTripDetail(1.toString())
+            val actual = tested.getTripDetail(1.toString()).fold({ null }, { it })
             //then
             assertNotNull(actual)
             assertThat(actual!!.title, equalTo(tripOne.title))

@@ -7,10 +7,7 @@ import androidx.room.*
 interface TripDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun add(trip: TripEntity) : Long
-
-    @Update
-    suspend fun update(trip: TripEntity)
+    suspend fun addOrUpdate(trip: TripEntity): Long
 
     @Delete
     suspend fun delete(trip: TripEntity)

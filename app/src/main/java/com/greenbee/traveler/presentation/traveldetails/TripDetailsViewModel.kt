@@ -6,15 +6,15 @@ import androidx.databinding.BindingAdapter
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.greenbee.traveler.domain.data.TravelerRepository
+import com.greenbee.traveler.data.Interactors
 import com.greenbee.traveler.domain.entities.Trip
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import com.greenbee.traveler.domain.exceptions.Failure
+import com.greenbee.traveler.domain.usecases.GetTripDetails.Params
 import java.text.SimpleDateFormat
 import java.util.*
 
 class TripDetailsViewModel internal constructor(
-    private val travelerRepository: TravelerRepository
+    private val interactors: Interactors
 ) : ViewModel() {
 
     var cardsVisibility = View.GONE
@@ -22,13 +22,14 @@ class TripDetailsViewModel internal constructor(
     private val tripState = MutableLiveData<Trip>()
     val trip: LiveData<Trip> get() = tripState
 
-    suspend fun setTripId(id: Long) {
-        withContext(Dispatchers.IO) {
-            val tripDetail = travelerRepository.getTripDetail(id.toString())
-            tripDetail?.let {
-                tripState.postValue(it)
-            }
-        }
+    fun setTripId(id: Long) {
+        interactors.getTripDetails(Params(id.toString())) { it.fold(::handleFailure, ::handleTrip) }
+    }
+
+    private fun handleFailure(failure: Failure) {}
+
+    private fun handleTrip(trip: Trip) {
+        tripState.postValue(trip)
     }
 }
 
@@ -38,4 +39,5 @@ fun TextView.formattedData(timeMillis: Long?) {
         val format = SimpleDateFormat("dd/MM/yyy")
         text = format.format(Date(timeMillis))
     }
+
 }

@@ -6,10 +6,7 @@ import androidx.room.*
 interface CategoryDao{
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun add(category: CategoryEntity) : Long
-
-    @Update
-    suspend fun update(category: CategoryEntity)
+    suspend fun addOrUpdate(category: CategoryEntity): Long
 
     @Delete
     suspend fun delete(category: CategoryEntity)

@@ -8,12 +8,6 @@ interface ItemDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun addOrUpdate(item: ItemEntity): Long
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun addOrUpdate(item: List<ItemEntity>)
-
-    @Update
-    suspend fun update(item: ItemEntity)
-
     @Delete
     suspend fun delete(item: ItemEntity)
 

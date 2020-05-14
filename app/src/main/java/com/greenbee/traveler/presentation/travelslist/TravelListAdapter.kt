@@ -41,13 +41,10 @@ class TravelListAdapter(val clickListener: TripListener) :
     }
 
     class TripDiffUtilCallback : DiffUtil.ItemCallback<Trip>() {
-        override fun areItemsTheSame(oldItem: Trip, newItem: Trip): Boolean {
-            return oldItem.id == newItem.id
-        }
+        override fun areItemsTheSame(oldItem: Trip, newItem: Trip): Boolean =
+            oldItem.id == newItem.id
 
-        override fun areContentsTheSame(oldItem: Trip, newItem: Trip): Boolean {
-            return oldItem == newItem
-        }
+        override fun areContentsTheSame(oldItem: Trip, newItem: Trip): Boolean = oldItem == newItem
     }
 
     class TripViewHolder(root: View) : RecyclerView.ViewHolder(root) {

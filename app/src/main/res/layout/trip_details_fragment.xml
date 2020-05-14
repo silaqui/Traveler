@@ -24,38 +24,41 @@
             android:scaleType="centerCrop"
             app:srcCompat="@drawable/mountains" />
 
-        <androidx.cardview.widget.CardView
-            tools:visibility="visible"
-            android:visibility="gone"
+        <androidx.viewpager.widget.ViewPager
+
             android:id="@+id/categories_card"
-
             android:layout_width="match_parent"
+
             android:layout_height="match_parent"
-
             android:layout_below="@+id/title_card"
+
             android:layout_alignParentBottom="true"
+            android:layout_centerInParent="true"
+            android:clipToPadding="false"
 
-            android:layout_marginStart="32dp"
-            android:layout_marginEnd="32dp"
-            android:layout_marginBottom="32dp"
+            android:foregroundGravity="center"
+            android:overScrollMode="never"
 
-            app:cardCornerRadius="16dp"
-            app:cardElevation="8dp"
+            android:paddingLeft="32dp"
+            android:paddingRight="32dp"
+            android:paddingBottom="16dp"
 
-            />
+            android:visibility="visible"
+            tools:visibility="visible" />
+
 
         <androidx.cardview.widget.CardView
-            tools:visibility="visible"
-            android:visibility="gone"
             android:id="@+id/title_card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="32dp"
+            android:layout_marginStart="48dp"
             android:layout_marginTop="32dp"
-            android:layout_marginEnd="32dp"
+            android:layout_marginEnd="48dp"
             android:layout_marginBottom="32dp"
+            android:visibility="gone"
             app:cardCornerRadius="16dp"
-            app:cardElevation="4dp">
+            app:cardElevation="4dp"
+            tools:visibility="visible">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
@@ -104,8 +107,7 @@
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@+id/travel_date_icon"
                     app:layout_constraintTop_toBottomOf="@+id/travel_title"
-                    tools:text="23.05.2020">
-                </TextView>
+                    tools:text="23.05.2020" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.cardview.widget.CardView>

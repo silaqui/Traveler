@@ -5,11 +5,11 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.matcher.ViewMatchers.assertThat
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
 import kotlinx.coroutines.runBlocking
 import org.hamcrest.CoreMatchers.equalTo
 import org.junit.After
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -61,7 +61,7 @@ class TripDaoTest {
                     date = 0
                 )
             //when
-            tested.add(tripEntity)
+            tested.addOrUpdate(tripEntity)
             val actual = tested.getAll()
             //then
             assertNotNull(actual)
@@ -76,12 +76,12 @@ class TripDaoTest {
             //given
             val tripEntity =
                 TripEntity(1, "Trip", "Trip note", "url", 0)
-            db.tripDao().add(tripEntity)
+            db.tripDao().addOrUpdate(tripEntity)
 
             val categoryOne = CategoryEntity(1, 1, "Cat1")
             val categoryTwo = CategoryEntity(2, 1, "Cat2")
-            db.categoryDao().add(categoryOne)
-            db.categoryDao().add(categoryTwo)
+            db.categoryDao().addOrUpdate(categoryOne)
+            db.categoryDao().addOrUpdate(categoryTwo)
 
             val item1 = ItemEntity(1,1,"Item 1 Cat 1",false)
             val item2 = ItemEntity(2,1,"Item 2 Cat 1",false)
@@ -107,12 +107,12 @@ class TripDaoTest {
             //given
             val tripEntity =
                 TripEntity(1, "Trip", "Trip note", "url", 0)
-            db.tripDao().add(tripEntity)
+            db.tripDao().addOrUpdate(tripEntity)
 
             val categoryOne = CategoryEntity(1, 1, "Cat1")
             val categoryTwo = CategoryEntity(2, 1, "Cat2")
-            db.categoryDao().add(categoryOne)
-            db.categoryDao().add(categoryTwo)
+            db.categoryDao().addOrUpdate(categoryOne)
+            db.categoryDao().addOrUpdate(categoryTwo)
 
             val item1 = ItemEntity(1,1,"Item 1 Cat 1",false)
             val item2 = ItemEntity(2,1,"Item 2 Cat 1",false)

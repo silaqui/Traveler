@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.*
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
 import androidx.transition.*
 import androidx.transition.Transition.TransitionListener
 import com.greenbee.traveler.R
@@ -33,6 +34,16 @@ class TripDetails : Fragment() {
 
         handleTransitionAnimation(arguments)
         setHasOptionsMenu(true)
+
+        viewModel.trip.observe(viewLifecycleOwner, Observer {
+            it?.let {
+                binding.categoriesCard.adapter =
+                    CategoryPagerAdapter(it.categories, requireContext())
+
+            }
+        })
+
+
 
         binding.categoriesCard.visibility = viewModel.cardsVisibility
         binding.titleCard.visibility = viewModel.cardsVisibility

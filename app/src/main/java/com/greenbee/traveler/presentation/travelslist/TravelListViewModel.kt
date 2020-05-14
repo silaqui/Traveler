@@ -1,18 +1,16 @@
 package com.greenbee.traveler.presentation.travelslist
 
 import android.widget.ImageView
-import android.widget.TextView
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.greenbee.traveler.domain.data.TravelerRepository
+import arrow.core.None
+import com.greenbee.traveler.data.Interactors
 import com.greenbee.traveler.domain.entities.Trip
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
+import com.greenbee.traveler.domain.exceptions.Failure
 
 class TravelListViewModel internal constructor(
-    val travelerRepository: TravelerRepository
+    private val interactors: Interactors
 ) :
     ViewModel() {
 
@@ -23,16 +21,20 @@ class TravelListViewModel internal constructor(
     val navigateToTripDetails: LiveData<Long> get() = _navigateToTripDetails
 
     var imageView: ImageView? = null
+
     init {
-        runBlocking {
-            tripListState.value = travelerRepository.getTrips()
-        }
+        interactors.getTripList(None) { it.fold(::handleFailure, ::handleTripList) }
     }
 
-    suspend fun add() {
-        withContext(Dispatchers.IO) {
-            travelerRepository.addNewTrip(Trip(title = "Title", note = "Lorem Ipsum"))
-        }
+    private fun handleFailure(failure: Failure) {}
+
+    private fun handleTripList(trips: List<Trip>) {
+        tripListState.postValue(trips)
+    }
+
+
+    fun add() {
+        //TODO
     }
 
 
@@ -50,8 +52,6 @@ class TravelListViewModel internal constructor(
     }
 
     fun refresh() {
-        runBlocking {
-            tripListState.value = travelerRepository.getTrips()
-        }
+        interactors.getTripList(None) { it.fold(::handleFailure, ::handleTripList) }
     }
 }
