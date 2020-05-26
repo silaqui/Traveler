@@ -75,11 +75,12 @@ class TripDetails : Fragment() {
         }
 
         sharedElementEnterTransition =
-            TransitionInflater.from(context).inflateTransition(android.R.transition.move)
+            TransitionInflater.from(context)
+                .inflateTransition(android.R.transition.move)
                 .addListener(listener)
 
         binding.backgroundImage.apply {
-            transitionName = "TRANSITION_IMAGE_" + arguments.tripId.toString()
+            transitionName = "TRANSITION_IMAGE_" + arguments.tripId
         }
     }
 
@@ -87,8 +88,9 @@ class TripDetails : Fragment() {
 
         val duration: Long = 300
 
-        val fade = Fade()
+        val fade = Slide()
         fade.duration = duration
+        fade.slideEdge = Gravity.END
         fade.addTarget(binding.titleCard)
 
         val slide = Slide()

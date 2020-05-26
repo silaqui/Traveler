@@ -9,7 +9,11 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.snackbar.Snackbar
 import com.greenbee.traveler.databinding.TravelsListFragmentBinding
+import com.greenbee.traveler.domain.entities.Trip
 import com.greenbee.traveler.presentation.InjectorUtils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -46,20 +50,41 @@ class TravelList : Fragment() {
             }
         })
 
+
+        val swipeHandler = object : SwipeToDeleteCallback(requireContext()) {
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                viewModel.deleteAtPosition(viewHolder.adapterPosition, ::showUndoSnackBar)
+            }
+        }
+
+
+        val itemTouchHelper = ItemTouchHelper(swipeHandler)
+        itemTouchHelper.attachToRecyclerView(binding.recListFragment)
+
         binding.addFab.setOnClickListener {
             CoroutineScope(Dispatchers.Main).launch {
-//                viewModel.add()
-//                viewModel.refresh()
+                val newItemTitle = binding.title.text.toString()
+                viewModel.add(newItemTitle)
+
+
             }
         }
 
         viewModel.navigateToTripDetails.observe(viewLifecycleOwner, Observer { tripId ->
             tripId?.let {
-                val extras = FragmentNavigatorExtras(
-                    viewModel.imageView!! to "TRANSITION_IMAGE_" + tripId.toString()
-                )
-                this.findNavController()
-                    .navigate(TravelListDirections.actionTravelsListToTripDetails(tripId), extras)
+                if (viewModel.imageView != null) {
+                    val extras = FragmentNavigatorExtras(
+                        viewModel.imageView!! to "TRANSITION_IMAGE_" + tripId.toString()
+                    )
+                    this.findNavController()
+                        .navigate(
+                            TravelListDirections.actionTravelsListToTripDetails(tripId),
+                            extras
+                        )
+                } else {
+                    this.findNavController()
+                        .navigate(TravelListDirections.actionTravelsListToTripDetails(tripId))
+                }
                 viewModel.onTripNavigated()
             }
         })
@@ -67,6 +92,19 @@ class TravelList : Fragment() {
         return binding.root
     }
 
+
+    fun showUndoSnackBar(trip: Trip) {
+        Snackbar
+            .make(
+                binding.travelListConstraintLayout,
+                "Travel removed",
+                Snackbar.LENGTH_LONG
+            )
+            .setAction("UNDO", View.OnClickListener {
+                viewModel.undoDelete(trip)
+            })
+            .show()
+    }
 
 }
 

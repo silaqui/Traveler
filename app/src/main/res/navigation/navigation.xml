@@ -12,8 +12,10 @@
         android:label="TravelsList" >
         <action
             android:id="@+id/action_travelsList_to_tripDetails"
-            app:destination="@id/tripDetails" >
-        </action>
+            app:destination="@id/tripDetails"
+            app:exitAnim="@android:anim/fade_out"
+            app:popEnterAnim="@android:anim/fade_in"
+            app:popExitAnim="@android:anim/fade_out"></action>
     </fragment>
     <fragment
         android:id="@+id/tripDetails"
@@ -25,6 +27,6 @@
             app:destination="@id/travelsList" />
         <argument
             android:name="tripId"
-            app:argType="long" />
+            app:argType="string" />
     </fragment>
 </navigation>

@@ -17,8 +17,14 @@ class RoomTravelerDataSource(dataSource: TravelerRoomDataBase) : TravelerDataSou
     }
 
     override suspend fun addOrUpdateTrip(trip: Trip): Either<Failure, String> {
-        val tripRoomEntity = trip.toRoomEntity
-        return Either.Right(db.tripDao().addOrUpdate(tripRoomEntity).toString())
+        val tripId = db.tripDao().addOrUpdate(trip.toRoomEntity).toString()
+        val categories = trip.categories
+
+        for (category in categories) {
+            addOrUpdateCategory(tripId, category)
+        }
+
+        return Either.Right(tripId)
     }
 
     override suspend fun removeTrip(trip: Trip): Either<Failure, Unit> {
@@ -26,40 +32,49 @@ class RoomTravelerDataSource(dataSource: TravelerRoomDataBase) : TravelerDataSou
         return Either.Right(Unit)
     }
 
-    override suspend fun getCategory(trip: Trip): Either<Nothing, List<Category>> {
-        return Either.Right(db.categoryDao().get(trip.id).map { it.toCategory })
+    override suspend fun getCategory(tripId: String): Either<Nothing, List<Category>> {
+        return Either.Right(db.categoryDao().get(tripId.toLong()).map { it.toCategory })
     }
 
     override suspend fun addOrUpdateCategory(
-        trip: Trip,
+        tripId: String,
         category: Category
     ): Either<Nothing, String> {
-        return Either.Right(db.categoryDao().addOrUpdate(category.toRoomEntity(trip.id)).toString())
+        val categoryId = db.categoryDao().addOrUpdate(category.toRoomEntity(tripId)).toString()
+        val items = category.items
+
+        for (item in items) {
+            addOrUpdateItem(tripId, categoryId, item)
+        }
+
+        return Either.Right(categoryId)
     }
 
-    override suspend fun removeCategory(trip: Trip, category: Category): Either<Failure, Unit> {
-        db.categoryDao().delete(category.toRoomEntity(trip.id))
+    override suspend fun removeCategory(tripId: String, category: Category): Either<Failure, Unit> {
+        db.categoryDao().delete(category.toRoomEntity(tripId))
         return Either.Right(Unit)
     }
 
-    override suspend fun getItems(trip: Trip, category: Category): Either<Nothing, List<Item>> {
-        return Either.Right(db.itemDao().get(category.id).map { it.toItem })
+    override suspend fun getItems(tripId: String, categoryId: String): Either<Nothing, List<Item>> {
+        return Either.Right(db.itemDao().get(categoryId.toLong()).map { it.toItem })
     }
 
     override suspend fun addOrUpdateItem(
-        trip: Trip,
-        category: Category,
+        tripId: String,
+        categoryId: String,
         item: Item
     ): Either<Nothing, String> {
-        return Either.Right(db.itemDao().addOrUpdate(item.toRoomEntity(category.id)).toString())
+        return Either.Right(
+            db.itemDao().addOrUpdate(item.toRoomEntity(categoryId.toLong())).toString()
+        )
     }
 
     override suspend fun removeItem(
-        trip: Trip,
-        category: Category,
+        tripId: String,
+        categoryId: String,
         item: Item
     ): Either<Nothing, Unit> {
-        db.itemDao().delete(item.toRoomEntity(category.id))
+        db.itemDao().delete(item.toRoomEntity(categoryId.toLong()))
         return Either.Right(Unit)
     }
 
