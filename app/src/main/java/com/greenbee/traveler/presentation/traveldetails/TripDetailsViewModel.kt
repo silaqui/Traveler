@@ -9,7 +9,7 @@ import androidx.lifecycle.ViewModel
 import com.greenbee.traveler.data.Interactors
 import com.greenbee.traveler.domain.entities.Trip
 import com.greenbee.traveler.domain.exceptions.Failure
-import com.greenbee.traveler.domain.usecases.GetTripDetails.Params
+import com.greenbee.traveler.features.usecases.GetTripDetails.Params
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -22,8 +22,8 @@ class TripDetailsViewModel internal constructor(
     private val tripState = MutableLiveData<Trip>()
     val trip: LiveData<Trip> get() = tripState
 
-    fun setTripId(id: Long) {
-        interactors.getTripDetails(Params(id.toString())) { it.fold(::handleFailure, ::handleTrip) }
+    fun setTripId(id: String) {
+        interactors.getTripDetails(Params(id)) { it.fold(::handleFailure, ::handleTrip) }
     }
 
     private fun handleFailure(failure: Failure) {}

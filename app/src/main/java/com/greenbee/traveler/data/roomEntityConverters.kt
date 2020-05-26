@@ -6,7 +6,7 @@ import com.greenbee.traveler.domain.entities.Item
 import com.greenbee.traveler.domain.entities.Trip
 
 internal val Trip.toRoomEntity: TripEntity
-    get() = if (id == -1L) {
+    get() = if (id.toLong() == -1L) {
         TripEntity(
             title = title,
             note = note,
@@ -15,7 +15,7 @@ internal val Trip.toRoomEntity: TripEntity
         )
     } else {
         TripEntity(
-            id,
+            id.toLong(),
             title,
             note,
             backgroundUrl,
@@ -24,36 +24,36 @@ internal val Trip.toRoomEntity: TripEntity
     }
 
 internal val TripEntity.toTrip: Trip
-    get() = Trip(id, title, note, backgroundUrl, date)
+    get() = Trip(id.toString(), title, note, backgroundUrl, date)
 
-fun Category.toRoomEntity(tripId: Long): CategoryEntity {
-    return if (id == -1L) {
+fun Category.toRoomEntity(tripId: String): CategoryEntity {
+    return if (id.toLong() == -1L) {
         CategoryEntity(
-            tripId = tripId,
+            tripId = tripId.toLong(),
             title = title
         )
     } else {
-        CategoryEntity(id, tripId, title)
+        CategoryEntity(id.toLong(), tripId.toLong(), title)
     }
 }
 
 internal val CategoryEntity.toCategory: Category
-    get() = Category(id, title)
+    get() = Category(id.toString(), title)
 
 fun Item.toRoomEntity(categoryId: Long): ItemEntity {
-    return if (id == -1L) {
+    return if (id.toLong() == -1L) {
         ItemEntity(
             categoryId = categoryId,
             name = name,
             isDone = isDone
         )
     } else {
-        ItemEntity(id, categoryId, name, isDone)
+        ItemEntity(id.toLong(), categoryId, name, isDone)
     }
 }
 
 internal val ItemEntity.toItem: Item
-    get() = Item(id, name, isDone)
+    get() = Item(id.toString(), name, isDone)
 
 fun CategoryWithItems.toCategories(): Category {
     val output = category.toCategory

@@ -25,6 +25,6 @@
             app:destination="@id/travelsList" />
         <argument
             android:name="tripId"
-            app:argType="long" />
+            app:argType="string" />
     </fragment>
 </navigation>

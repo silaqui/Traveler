@@ -8,7 +8,7 @@ import android.widget.TextView
 import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
-import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.greenbee.traveler.R
 import com.greenbee.traveler.domain.entities.Trip
 import kotlinx.android.synthetic.main.item_travel.view.*
@@ -47,15 +47,16 @@ class TravelListAdapter(val clickListener: TripListener) :
         override fun areContentsTheSame(oldItem: Trip, newItem: Trip): Boolean = oldItem == newItem
     }
 
-    class TripViewHolder(root: View) : RecyclerView.ViewHolder(root) {
+    class TripViewHolder(root: View) : ViewHolder(root) {
         val title: TextView = root.travel_title
         val date: TextView = root.travel_date
         val root: CardView = root.root_item_travel
         val listImage: ImageView = root.list_image
     }
 
-    class TripListener(val clickListener: (travelId: Long, imageView: ImageView) -> Unit) {
+    class TripListener(val clickListener: (travelId: String, imageView: ImageView) -> Unit) {
         fun onClick(trip: Trip, imageView: ImageView) =
             clickListener(trip.id, imageView)
     }
+
 }

@@ -10,7 +10,6 @@ import com.greenbee.traveler.domain.entities.Category
 import com.greenbee.traveler.domain.entities.Item
 import com.greenbee.traveler.domain.entities.Trip
 import kotlinx.coroutines.runBlocking
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -31,7 +30,6 @@ class FeedDataToApp {
     lateinit var categoryId22: String
     lateinit var categoryId23: String
 
-    @Ignore
     @Test
     fun feedManualTestData() {
         val context = ApplicationProvider.getApplicationContext<Context>()
@@ -48,98 +46,98 @@ class FeedDataToApp {
             tripId4 = db.addOrUpdateTrip(Trip(title = "Egipt")).fold({ "ERROR" }, { it })
 
             categoryId11 = db.addOrUpdateCategory(
-                Trip(id = tripId1.toLong()),
+                tripId1,
                 category = Category(title = "Ubrania")
             ).fold({ "ERROR" }, { it })
             categoryId12 = db.addOrUpdateCategory(
-                Trip(id = tripId1.toLong()),
+                tripId1,
                 category = Category(title = "Dokumenty")
             ).fold({ "ERROR" }, { it })
             categoryId13 = db.addOrUpdateCategory(
-                Trip(id = tripId1.toLong()),
+                tripId1,
                 category = Category(title = "Jedzenie")
             ).fold({ "ERROR" }, { it })
             categoryId14 = db.addOrUpdateCategory(
-                Trip(id = tripId1.toLong()),
+                tripId1,
                 category = Category(title = "Do spanka")
             ).fold({ "ERROR" }, { it })
             categoryId21 = db.addOrUpdateCategory(
-                Trip(id = tripId2.toLong()),
+                tripId2,
                 category = Category(title = "Ubrania")
             ).fold({ "ERROR" }, { it })
             categoryId22 = db.addOrUpdateCategory(
-                Trip(id = tripId2.toLong()),
+                tripId2,
                 category = Category(title = "Dokumenty")
             ).fold({ "ERROR" }, { it })
             categoryId23 = db.addOrUpdateCategory(
-                Trip(id = tripId2.toLong()),
+                tripId2,
                 category = Category(title = "Jedzenie")
             ).fold({ "ERROR" }, { it })
 
             db.addOrUpdateItem(
-                Trip(id = tripId1.toLong()),
-                Category(id = categoryId11.toLong()),
+                tripId1,
+                categoryId11,
                 Item(name = "Majtasy", isDone = true)
             )
             db.addOrUpdateItem(
-                Trip(id = tripId1.toLong()),
-                Category(id = categoryId11.toLong()),
+                tripId1,
+                categoryId11,
                 Item(name = "Kurtka")
             )
             db.addOrUpdateItem(
-                Trip(id = tripId1.toLong()),
-                Category(id = categoryId11.toLong()),
+                tripId1,
+                categoryId11,
                 Item(name = "Skarpety")
             )
             db.addOrUpdateItem(
-                Trip(id = tripId1.toLong()),
-                Category(id = categoryId11.toLong()),
+                tripId1,
+                categoryId11,
                 Item(name = "Bluza")
             )
             db.addOrUpdateItem(
-                Trip(id = tripId1.toLong()),
-                Category(id = categoryId11.toLong()),
+                tripId1,
+                categoryId11,
                 Item(name = "T-shirt")
             )
             db.addOrUpdateItem(
-                Trip(id = tripId1.toLong()),
-                Category(id = categoryId11.toLong()),
+                tripId1,
+                categoryId11,
                 Item(name = "Czapka")
             )
             db.addOrUpdateItem(
-                Trip(id = tripId1.toLong()),
-                Category(id = categoryId11.toLong()),
+                tripId1,
+                categoryId11,
                 Item(name = "But")
             )
             db.addOrUpdateItem(
-                Trip(id = tripId1.toLong()),
-                Category(id = categoryId11.toLong()),
+                tripId1,
+                categoryId11,
                 Item(name = "Lewy But")
             )
             db.addOrUpdateItem(
-                Trip(id = tripId1.toLong()),
-                Category(id = categoryId11.toLong()),
+                tripId1,
+                categoryId11,
                 Item(name = "Szal")
             )
             db.addOrUpdateItem(
-                Trip(id = tripId1.toLong()),
-                Category(id = categoryId11.toLong()),
+                tripId1,
+                categoryId11,
                 Item(name = "Majtasy")
             )
 
             db.addOrUpdateItem(
-                Trip(id = tripId1.toLong()),
-                Category(id = categoryId12.toLong()),
+                tripId1,
+                categoryId12,
                 Item(name = "Paszport", isDone = true)
             )
             db.addOrUpdateItem(
-                Trip(id = tripId1.toLong()),
-                Category(id = categoryId12.toLong()),
+                tripId1,
+                categoryId12,
                 Item(name = "Prawo jazdy")
             )
             db.addOrUpdateItem(
-                Trip(id = tripId1.toLong()),
-                Category(id = categoryId12.toLong()),
+                tripId1,
+                categoryId12,
                 Item(name = "Dokumanty samochodu")
             )
 
