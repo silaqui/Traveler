@@ -79,6 +79,15 @@ class TripDetails : Fragment() {
                 .inflateTransition(android.R.transition.move)
                 .addListener(listener)
 
+        val resID: Int =
+            requireContext().resources.getIdentifier(
+                arguments.backgroundUrl,
+                "drawable",
+                requireContext().packageName
+            )
+
+        binding.backgroundImage.setImageResource(resID)
+
         binding.backgroundImage.apply {
             transitionName = "TRANSITION_IMAGE_" + arguments.tripId
         }

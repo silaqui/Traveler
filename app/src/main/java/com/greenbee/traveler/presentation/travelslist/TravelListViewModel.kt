@@ -23,6 +23,7 @@ class TravelListViewModel internal constructor(
     val navigateToTripDetails: LiveData<String> get() = _navigateToTripDetails
 
     var imageView: ImageView? = null
+    var backgroundUrl: String? = null
 
     init {
         refreshTripList()
@@ -77,8 +78,9 @@ class TravelListViewModel internal constructor(
         }
     }
 
-    fun onTripClicked(id: String, imageView: ImageView) {
+    fun onTripClicked(id: String, imageView: ImageView, backgroundUrl: String) {
         this.imageView = imageView
+        this.backgroundUrl = backgroundUrl
         _navigateToTripDetails.value = id
     }
 

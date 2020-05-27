@@ -38,8 +38,8 @@ class TravelList : Fragment() {
         binding.lifecycleOwner = this
 
         val adapter =
-            TravelListAdapter(TravelListAdapter.TripListener { id, imageView ->
-                viewModel.onTripClicked(id, imageView)
+            TravelListAdapter(TravelListAdapter.TripListener { id, imageView, backgroundUrl ->
+                viewModel.onTripClicked(id, imageView, backgroundUrl)
             })
 
         binding.recListFragment.adapter = adapter
@@ -78,12 +78,20 @@ class TravelList : Fragment() {
                     )
                     this.findNavController()
                         .navigate(
-                            TravelListDirections.actionTravelsListToTripDetails(tripId),
+                            TravelListDirections.actionTravelsListToTripDetails(
+                                tripId,
+                                viewModel.backgroundUrl
+                            ),
                             extras
                         )
                 } else {
                     this.findNavController()
-                        .navigate(TravelListDirections.actionTravelsListToTripDetails(tripId))
+                        .navigate(
+                            TravelListDirections.actionTravelsListToTripDetails(
+                                tripId,
+                                viewModel.backgroundUrl
+                            )
+                        )
                 }
                 viewModel.onTripNavigated()
             }

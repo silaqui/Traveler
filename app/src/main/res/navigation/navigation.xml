@@ -28,5 +28,9 @@
         <argument
             android:name="tripId"
             app:argType="string" />
+        <argument
+            android:name="backgroundUrl"
+            app:argType="string"
+            app:nullable="true" />
     </fragment>
 </navigation>

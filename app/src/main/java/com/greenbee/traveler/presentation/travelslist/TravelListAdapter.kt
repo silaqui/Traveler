@@ -15,6 +15,7 @@ import kotlinx.android.synthetic.main.item_travel.view.*
 import java.text.SimpleDateFormat
 import java.util.*
 
+
 class TravelListAdapter(val clickListener: TripListener) :
     ListAdapter<Trip, TravelListAdapter.TripViewHolder>(TripDiffUtilCallback()) {
 
@@ -36,7 +37,22 @@ class TravelListAdapter(val clickListener: TripListener) :
                 )
             }
 
-            holder.listImage.apply { transitionName = "TRANSITION_IMAGE_" + trip.id.toString() }
+
+//            val iconName: String =
+//                holder.root.context.resources.getResourceEntryName(R.drawable.cabin)
+
+            val iconName: String = getItem(position).let { trip -> trip.backgroundUrl }
+
+            val resID: Int =
+                holder.root.context.resources.getIdentifier(
+                    iconName,
+                    "drawable",
+                    holder.root.context.packageName
+                )
+
+            holder.listImage.setImageResource(resID)
+
+            holder.listImage.apply { transitionName = "TRANSITION_IMAGE_" + trip.id }
         }
     }
 
@@ -54,9 +70,9 @@ class TravelListAdapter(val clickListener: TripListener) :
         val listImage: ImageView = root.list_image
     }
 
-    class TripListener(val clickListener: (travelId: String, imageView: ImageView) -> Unit) {
+    class TripListener(val clickListener: (travelId: String, imageView: ImageView, backgroundUrl: String) -> Unit) {
         fun onClick(trip: Trip, imageView: ImageView) =
-            clickListener(trip.id, imageView)
+            clickListener(trip.id, imageView, trip.backgroundUrl)
     }
 
 }

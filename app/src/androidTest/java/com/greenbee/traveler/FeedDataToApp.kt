@@ -40,10 +40,19 @@ class FeedDataToApp {
         runBlocking {
             rdb.tripDao().clear()
 
-            tripId1 = db.addOrUpdateTrip(Trip(title = "Tygryskowo")).fold({ "ERROR" }, { it })
-            tripId2 = db.addOrUpdateTrip(Trip(title = "Hel")).fold({ "ERROR" }, { it })
-            tripId3 = db.addOrUpdateTrip(Trip(title = "Wyjazd w góry")).fold({ "ERROR" }, { it })
-            tripId4 = db.addOrUpdateTrip(Trip(title = "Egipt")).fold({ "ERROR" }, { it })
+            tripId1 =
+                db.addOrUpdateTrip(Trip(title = "Tygryskowo", backgroundUrl = "mountains_green_1"))
+                    .fold({ "ERROR" }, { it })
+            tripId2 = db.addOrUpdateTrip(Trip(title = "Hel", backgroundUrl = "cabin"))
+                .fold({ "ERROR" }, { it })
+            tripId3 = db.addOrUpdateTrip(
+                Trip(
+                    title = "Wyjazd w góry",
+                    backgroundUrl = "mountains_green_2"
+                )
+            ).fold({ "ERROR" }, { it })
+            tripId4 = db.addOrUpdateTrip(Trip(title = "Egipt", backgroundUrl = "mountains"))
+                .fold({ "ERROR" }, { it })
 
             categoryId11 = db.addOrUpdateCategory(
                 tripId1,
