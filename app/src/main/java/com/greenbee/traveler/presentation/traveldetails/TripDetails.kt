@@ -5,14 +5,16 @@ import android.view.*
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.PagerSnapHelper
+import androidx.recyclerview.widget.SnapHelper
 import androidx.transition.*
 import androidx.transition.Transition.TransitionListener
 import com.greenbee.traveler.R
+import com.greenbee.traveler.data.Interactors
 import com.greenbee.traveler.databinding.TripDetailsFragmentBinding
 import com.greenbee.traveler.presentation.InjectorUtils
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+
 
 class TripDetails : Fragment() {
 
@@ -35,22 +37,29 @@ class TripDetails : Fragment() {
         handleTransitionAnimation(arguments)
         setHasOptionsMenu(true)
 
+
+        viewModel.setTripId(arguments.tripId)
+
+        val adapter =
+            CategoryListAdapter(arguments.tripId, Interactors.getInstance(requireContext()))
+        binding.categoriesCard.layoutManager =
+            LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+
+        val snapHelper: SnapHelper = PagerSnapHelper()
+        snapHelper.attachToRecyclerView(binding.categoriesCard)
+
+        binding.categoriesCard.adapter = adapter
+
         viewModel.trip.observe(viewLifecycleOwner, Observer {
             it?.let {
-                binding.categoriesCard.adapter =
-                    CategoryPagerAdapter(it.categories, requireContext())
-
+                adapter.submitList(it.categories)
             }
         })
-
 
 
         binding.categoriesCard.visibility = viewModel.cardsVisibility
         binding.titleCard.visibility = viewModel.cardsVisibility
 
-        CoroutineScope(Dispatchers.Main).launch {
-            viewModel.setTripId(arguments.tripId)
-        }
 
         return binding.root
     }
@@ -73,23 +82,27 @@ class TripDetails : Fragment() {
             override fun onTransitionPause(transition: Transition) {}
             override fun onTransitionResume(transition: Transition) {}
         }
+        if (arguments.backgroundUrl != null) {
+            sharedElementEnterTransition =
+                TransitionInflater.from(context)
+                    .inflateTransition(android.R.transition.move)
+                    .addListener(listener)
 
-        sharedElementEnterTransition =
-            TransitionInflater.from(context)
-                .inflateTransition(android.R.transition.move)
-                .addListener(listener)
+            val resID: Int =
+                requireContext().resources.getIdentifier(
+                    arguments.backgroundUrl,
+                    "drawable",
+                    requireContext().packageName
+                )
 
-        val resID: Int =
-            requireContext().resources.getIdentifier(
-                arguments.backgroundUrl,
-                "drawable",
-                requireContext().packageName
-            )
+            binding.backgroundImage.setImageResource(resID)
 
-        binding.backgroundImage.setImageResource(resID)
-
-        binding.backgroundImage.apply {
-            transitionName = "TRANSITION_IMAGE_" + arguments.tripId
+            binding.backgroundImage.apply {
+                transitionName = "TRANSITION_IMAGE_" + arguments.tripId
+            }
+        } else {
+            showTitleAndCategoriesCards()
+            viewModel.cardsVisibility = View.VISIBLE
         }
     }
 

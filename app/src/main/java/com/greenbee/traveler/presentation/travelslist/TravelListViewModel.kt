@@ -4,7 +4,6 @@ import android.widget.ImageView
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import arrow.core.None
 import com.greenbee.traveler.data.Interactors
 import com.greenbee.traveler.domain.entities.Trip
 import com.greenbee.traveler.domain.exceptions.Failure
@@ -16,7 +15,7 @@ class TravelListViewModel internal constructor(
 ) :
     ViewModel() {
 
-    private val tripListState = MutableLiveData<List<Trip>>()
+    private var tripListState = interactors.getTripsList()
     val tripList: LiveData<List<Trip>> get() = tripListState
 
     private val _navigateToTripDetails = MutableLiveData<String>()
@@ -25,19 +24,7 @@ class TravelListViewModel internal constructor(
     var imageView: ImageView? = null
     var backgroundUrl: String? = null
 
-    init {
-        refreshTripList()
-    }
-
-    fun refreshTripList() {
-        interactors.getTripList(None) { it.fold(::handleFailure, ::handleTripList) }
-    }
-
     private fun handleFailure(failure: Failure) {}
-
-    private fun handleTripList(trips: List<Trip>) {
-        tripListState.postValue(trips)
-    }
 
     fun add(title: String) {
         interactors.addOrUpdateTrip(AddOrUpdateTrip.Params(Trip(title = title)))
@@ -50,30 +37,17 @@ class TravelListViewModel internal constructor(
     }
 
     fun undoDelete(trip: Trip) {
-        interactors.addOrUpdateTrip(AddOrUpdateTrip.Params(trip)) {
-            it.fold({}, { refreshTripList() })
-        }
+        interactors.addOrUpdateTrip(AddOrUpdateTrip.Params(trip)) { }
     }
 
     private fun handleAdd(id: String) {
-        interactors.getTripList(None) { refresh ->
-            refresh.fold(
-                ::handleFailure
-            ) {
-                tripListState.postValue(it)
-                _navigateToTripDetails.value = id
-            }
-        }
+        _navigateToTripDetails.value = id
     }
 
     fun deleteAtPosition(position: Int, callback: (Trip) -> Unit) {
         tripList.value?.get(position)?.id?.let {
             interactors.removeTrip(RemoveTrip.Params(it)) {
-                refreshTripList()
-                it.fold({}, {
-                    callback(it)
-                    refreshTripList()
-                })
+                it.fold({}, { callback(it) })
             }
         }
     }
@@ -85,10 +59,6 @@ class TravelListViewModel internal constructor(
     }
 
     fun onTripNavigated() {
-        _navigateToTripDetails.value = null
-    }
-
-    fun doneNavigating() {
         _navigateToTripDetails.value = null
     }
 }

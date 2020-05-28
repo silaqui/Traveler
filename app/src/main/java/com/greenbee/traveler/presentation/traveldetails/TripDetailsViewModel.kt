@@ -4,12 +4,9 @@ import android.view.View
 import android.widget.TextView
 import androidx.databinding.BindingAdapter
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.greenbee.traveler.data.Interactors
 import com.greenbee.traveler.domain.entities.Trip
-import com.greenbee.traveler.domain.exceptions.Failure
-import com.greenbee.traveler.features.usecases.GetTripDetails.Params
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -19,17 +16,11 @@ class TripDetailsViewModel internal constructor(
 
     var cardsVisibility = View.GONE
 
-    private val tripState = MutableLiveData<Trip>()
-    val trip: LiveData<Trip> get() = tripState
+    private lateinit var tripState: LiveData<Trip?>
+    val trip: LiveData<Trip?> get() = tripState
 
     fun setTripId(id: String) {
-        interactors.getTripDetails(Params(id)) { it.fold(::handleFailure, ::handleTrip) }
-    }
-
-    private fun handleFailure(failure: Failure) {}
-
-    private fun handleTrip(trip: Trip) {
-        tripState.postValue(trip)
+        tripState = interactors.getTripDetailsLive(id)
     }
 }
 

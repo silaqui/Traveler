@@ -11,37 +11,50 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.greenbee.traveler.R
+import com.greenbee.traveler.data.Interactors
 import com.greenbee.traveler.domain.entities.Item
+import com.greenbee.traveler.features.usecases.AddOrUpdateItem
 import kotlinx.android.synthetic.main.item_list_add_item.view.*
 import kotlinx.android.synthetic.main.item_list_item.view.*
 
 private val ADD_ITEM_TYPE = 1
 private val ITEM_TYPE = 0
 
-class ItemListAdapter(var clickListener: ItemListener) :
+class ItemListAdapter(val tripId: String, val categoryId: String, val interactors: Interactors) :
     ListAdapter<Item, RecyclerView.ViewHolder>(ItemDiffUtilCallback()) {
-
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val inflater = LayoutInflater.from(parent.context)
-
         return when (viewType) {
-            ADD_ITEM_TYPE -> AddItemViewHolder(
-                inflater.inflate(
-                    R.layout.item_list_add_item,
-                    parent,
-                    false
-                )
-            )
-            else -> ItemViewHolder(
-                inflater.inflate(
-                    R.layout.item_list_item,
-                    parent,
-                    false
-                )
-            )
+            ADD_ITEM_TYPE -> addItemViewHolder(inflater, parent)
+            else -> itemViewHolder(inflater, parent)
         }
+    }
 
+    private fun itemViewHolder(
+        inflater: LayoutInflater,
+        parent: ViewGroup
+    ): ItemViewHolder {
+        return ItemViewHolder(
+            inflater.inflate(
+                R.layout.item_list_item,
+                parent,
+                false
+            )
+        )
+    }
+
+    private fun addItemViewHolder(
+        inflater: LayoutInflater,
+        parent: ViewGroup
+    ): AddItemViewHolder {
+        return AddItemViewHolder(
+            inflater.inflate(
+                R.layout.item_list_add_item,
+                parent,
+                false
+            )
+        )
     }
 
     override fun getItemCount(): Int {
@@ -54,35 +67,57 @@ class ItemListAdapter(var clickListener: ItemListener) :
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         if (position == itemCount - 1) {
-            (holder as AddItemViewHolder)
-            holder.newButton.setOnClickListener {
-                holder.newButton.visibility = View.GONE
-                holder.name.visibility = View.VISIBLE
-                holder.confirm.visibility = View.VISIBLE
-                holder.cancel.visibility = View.VISIBLE
-            }
-            holder.confirm.setOnClickListener {
-                holder.newButton.visibility = View.VISIBLE
-                holder.name.visibility = View.GONE
-                holder.confirm.visibility = View.GONE
-                holder.cancel.visibility = View.GONE
-            }
-            holder.cancel.setOnClickListener {
-                holder.newButton.visibility = View.VISIBLE
-                holder.name.visibility = View.GONE
-                holder.confirm.visibility = View.GONE
-                holder.cancel.visibility = View.GONE
-            }
-
-
+            bindAddNewItem(holder)
         } else {
-            getItem(position).let {
-                (holder as ItemViewHolder).name.text = it.name
-                holder.checkBox.isChecked = it.isDone
+            bindItem(position, holder)
+        }
+    }
+
+    private fun bindItem(position: Int, holder: RecyclerView.ViewHolder) {
+        getItem(position).let { item ->
+            (holder as ItemViewHolder).name.text = item.name
+            holder.checkBox.isChecked = item.isDone
+            holder.checkBox.setOnClickListener {
+                interactors
+                    .addOrUpdateItem(
+                        AddOrUpdateItem.Params(
+                            tripId,
+                            categoryId,
+                            item.copy(isDone = !item.isDone)
+                        )
+                    ) {}
             }
         }
     }
 
+    private fun bindAddNewItem(holder: RecyclerView.ViewHolder) {
+        (holder as AddItemViewHolder)
+        holder.newButton.setOnClickListener {
+            holder.newButton.visibility = View.GONE
+            holder.name.visibility = View.VISIBLE
+            holder.confirm.visibility = View.VISIBLE
+            holder.cancel.visibility = View.VISIBLE
+        }
+        holder.confirm.setOnClickListener {
+            Interactors.getInstance(holder.confirm.context).addOrUpdateItem(
+                AddOrUpdateItem.Params(
+                    tripId,
+                    categoryId,
+                    Item(name = "New Item")
+                )
+            ) {}
+            holder.newButton.visibility = View.VISIBLE
+            holder.name.visibility = View.GONE
+            holder.confirm.visibility = View.GONE
+            holder.cancel.visibility = View.GONE
+        }
+        holder.cancel.setOnClickListener {
+            holder.newButton.visibility = View.VISIBLE
+            holder.name.visibility = View.GONE
+            holder.confirm.visibility = View.GONE
+            holder.cancel.visibility = View.GONE
+        }
+    }
 
     class ItemDiffUtilCallback : DiffUtil.ItemCallback<Item>() {
         override fun areItemsTheSame(oldItem: Item, newItem: Item): Boolean =

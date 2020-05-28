@@ -15,7 +15,7 @@ interface TripDao {
     @Query("SELECT * FROM trip_table ORDER BY id DESC")
     suspend fun getAll(): List<TripEntity>
 
-    @Query("SELECT * FROM trip_table")
+    @Query("SELECT * FROM trip_table ORDER BY id DESC")
     fun getAllLiveData(): LiveData<List<TripEntity>>
 
     @Query("DELETE FROM trip_table")
@@ -27,4 +27,8 @@ interface TripDao {
     @Transaction
     @Query("SELECT * FROM trip_table  WHERE id = :id ")
     suspend fun getTripWithIdDetails(id: Long): TripDetails?
+
+    @Transaction
+    @Query("SELECT * FROM trip_table  WHERE id = :id ")
+    fun getTripWithIdDetailsLiveData(id: Long): LiveData<TripDetails?>
 }

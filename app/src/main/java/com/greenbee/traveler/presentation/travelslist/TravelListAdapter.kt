@@ -37,11 +37,7 @@ class TravelListAdapter(val clickListener: TripListener) :
                 )
             }
 
-
-//            val iconName: String =
-//                holder.root.context.resources.getResourceEntryName(R.drawable.cabin)
-
-            val iconName: String = getItem(position).let { trip -> trip.backgroundUrl }
+            val iconName: String = getItem(position).backgroundUrl
 
             val resID: Int =
                 holder.root.context.resources.getIdentifier(

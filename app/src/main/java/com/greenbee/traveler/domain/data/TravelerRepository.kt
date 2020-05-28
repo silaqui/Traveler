@@ -6,11 +6,12 @@ import com.greenbee.traveler.domain.entities.Trip
 
 class TravelerRepository(private val dataSource: TravelerDataSource) {
 
-    suspend fun getTrips() = dataSource.getTrips()
+    fun getTrips() = dataSource.getTrips()
+
     suspend fun addOrUpdateTrip(trip: Trip) = dataSource.addOrUpdateTrip(trip)
     suspend fun removeTrip(tripId: String) = dataSource.removeTrip(Trip(id = tripId))
 
-    suspend fun getCategory(tripId: String) = dataSource.getCategory(tripId)
+    fun getCategory(tripId: String) = dataSource.getCategories(tripId)
 
     suspend fun addOrUpdateCategory(tripId: String, category: Category) =
         dataSource.addOrUpdateCategory(tripId, category)
@@ -18,7 +19,7 @@ class TravelerRepository(private val dataSource: TravelerDataSource) {
     suspend fun removeCategory(tripId: String, categoryId: String) =
         dataSource.removeCategory(tripId, Category(id = categoryId))
 
-    suspend fun getItems(tripId: String, categoryId: String) =
+    fun getItems(tripId: String, categoryId: String) =
         dataSource.getItems(tripId, categoryId)
 
     suspend fun addOrUpdateItem(tripId: String, categoryId: String, item: Item) =
@@ -28,5 +29,7 @@ class TravelerRepository(private val dataSource: TravelerDataSource) {
         dataSource.removeItem(tripId, categoryId, Item(id = itemId))
 
     suspend fun getTripDetail(tripId: String) = dataSource.getTripDetail(tripId)
+
+    fun getTripDetailLiveData(tripId: String) = dataSource.getTripDetailLiveData(tripId)
 
 }

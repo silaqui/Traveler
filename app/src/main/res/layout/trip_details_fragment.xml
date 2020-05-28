@@ -22,7 +22,13 @@
             android:scaleType="centerCrop"
             app:srcCompat="@drawable/mountains" />
 
-        <androidx.viewpager.widget.ViewPager
+        <androidx.recyclerview.widget.RecyclerView
+
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+
+            tools:itemCount="10"
+            tools:listitem="@layout/item_category"
+            tools:orientation="horizontal"
 
             android:id="@+id/categories_card"
             android:layout_width="match_parent"
