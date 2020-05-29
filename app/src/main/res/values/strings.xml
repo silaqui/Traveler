@@ -4,5 +4,14 @@
     <string name="UNDO">UNDO</string>
     <string name="Travel_removed">Travel removed</string>
 
+    <string name="about_text">About Traveler App</string>
+
+    <string name="add_new_category">Add New Category</string>
+
+    <string name="about">About</string>
+    <string name="edit">Edit</string>
+    <string name="copy_as_new">Copy as new</string>
+    <string name="delete">Delete</string>
+
 
 </resources>
