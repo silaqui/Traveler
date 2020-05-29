@@ -59,6 +59,8 @@ class TravelListViewModel internal constructor(
     }
 
     fun onTripNavigated() {
+        imageView = null
+        backgroundUrl = null
         _navigateToTripDetails.value = null
     }
 }

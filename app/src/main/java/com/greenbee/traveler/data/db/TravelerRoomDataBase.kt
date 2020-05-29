@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import com.greenbee.traveler.DATABASE_NAME
 
 @Database(
     entities = [TripEntity::class, CategoryEntity::class, ItemEntity::class],
@@ -13,8 +14,6 @@ import androidx.room.RoomDatabase
 abstract class TravelerRoomDataBase : RoomDatabase() {
 
     companion object {
-
-        private const val DATABASE_NAME = "traveler.db"
 
         @Volatile
         private var instance: TravelerRoomDataBase? = null

@@ -12,6 +12,8 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
+import com.greenbee.traveler.LIST_DETAIL_HERO_TAG
+import com.greenbee.traveler.R
 import com.greenbee.traveler.databinding.TravelsListFragmentBinding
 import com.greenbee.traveler.domain.entities.Trip
 import com.greenbee.traveler.presentation.InjectorUtils
@@ -34,9 +36,17 @@ class TravelList : Fragment() {
     ): View? {
         binding = TravelsListFragmentBinding.inflate(inflater, container, false)
         binding.viewModel = viewModel
-
         binding.lifecycleOwner = this
 
+        setUpListAdapter()
+        setUpSwipeToDeleteOnList()
+        setUpAddFab()
+        setUpNavigateToDetails()
+
+        return binding.root
+    }
+
+    private fun setUpListAdapter() {
         val adapter =
             TravelListAdapter(TravelListAdapter.TripListener { id, imageView, backgroundUrl ->
                 viewModel.onTripClicked(id, imageView, backgroundUrl)
@@ -49,69 +59,57 @@ class TravelList : Fragment() {
                 adapter.submitList(it)
             }
         })
+    }
 
-
+    private fun setUpSwipeToDeleteOnList() {
         val swipeHandler = object : SwipeToDeleteCallback(requireContext()) {
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                 viewModel.deleteAtPosition(viewHolder.adapterPosition, ::showUndoSnackBar)
             }
         }
-
-
         val itemTouchHelper = ItemTouchHelper(swipeHandler)
         itemTouchHelper.attachToRecyclerView(binding.recListFragment)
-
-        binding.addFab.setOnClickListener {
-            CoroutineScope(Dispatchers.Main).launch {
-                val newItemTitle = binding.title.text.toString()
-                viewModel.add(newItemTitle)
-
-
-            }
-        }
-
-        viewModel.navigateToTripDetails.observe(viewLifecycleOwner, Observer { tripId ->
-            tripId?.let {
-                if (viewModel.imageView != null) {
-                    val extras = FragmentNavigatorExtras(
-                        viewModel.imageView!! to "TRANSITION_IMAGE_" + tripId.toString()
-                    )
-                    this.findNavController()
-                        .navigate(
-                            TravelListDirections.actionTravelsListToTripDetails(
-                                tripId,
-                                viewModel.backgroundUrl
-                            ),
-                            extras
-                        )
-                } else {
-                    this.findNavController()
-                        .navigate(
-                            TravelListDirections.actionTravelsListToTripDetails(
-                                tripId,
-                                viewModel.backgroundUrl
-                            )
-                        )
-                }
-                viewModel.onTripNavigated()
-            }
-        })
-
-        return binding.root
     }
-
 
     fun showUndoSnackBar(trip: Trip) {
         Snackbar
             .make(
                 binding.travelListConstraintLayout,
-                "Travel removed",
+                R.string.Travel_removed,
                 Snackbar.LENGTH_LONG
             )
-            .setAction("UNDO", View.OnClickListener {
-                viewModel.undoDelete(trip)
-            })
+            .setAction(R.string.UNDO) { viewModel.undoDelete(trip) }
             .show()
+    }
+
+    private fun setUpAddFab() {
+        binding.addFab.setOnClickListener {
+            CoroutineScope(Dispatchers.Main).launch {
+                val newItemTitle = binding.title.text.toString()
+                viewModel.add(newItemTitle)
+            }
+        }
+    }
+
+    private fun setUpNavigateToDetails() {
+        viewModel.navigateToTripDetails.observe(viewLifecycleOwner, Observer { tripId ->
+            tripId?.let {
+                val actionTravelsListToTripDetails =
+                    TravelListDirections.actionTravelsListToTripDetails(
+                        tripId,
+                        viewModel.backgroundUrl
+                    )
+                if (viewModel.imageView != null) {
+                    val extras = FragmentNavigatorExtras(
+                        viewModel.imageView!! to "$LIST_DETAIL_HERO_TAG$tripId"
+                    )
+                    this.findNavController().navigate(actionTravelsListToTripDetails, extras)
+                } else {
+                    this.findNavController().navigate(actionTravelsListToTripDetails)
+                }
+                viewModel.onTripNavigated()
+            }
+        })
     }
 
 }

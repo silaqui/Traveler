@@ -1,13 +1,14 @@
 package com.greenbee.traveler.presentation.travelslist
 
 import android.content.Context
-import android.graphics.*
-import android.graphics.drawable.ColorDrawable
+import android.graphics.Canvas
+import android.graphics.Paint
+import android.graphics.PorterDuff
+import android.graphics.PorterDuffXfermode
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.greenbee.traveler.R
-
 
 abstract class SwipeToDeleteCallback(context: Context) :
     ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
@@ -16,11 +17,8 @@ abstract class SwipeToDeleteCallback(context: Context) :
         ContextCompat.getDrawable(context, R.drawable.ic_delete_forever_black_24dp)!!
     private val intrinsicWidth = deleteIcon.intrinsicWidth
     private val intrinsicHeight = deleteIcon.intrinsicHeight
-    private val background = ColorDrawable()
-    private val backgroundColor = Color.parseColor("#f44336")
     private val clearPaint =
         Paint().apply { xfermode = PorterDuffXfermode(PorterDuff.Mode.CLEAR) }
-
 
     override fun onMove(
         recyclerView: RecyclerView,
@@ -55,16 +53,6 @@ abstract class SwipeToDeleteCallback(context: Context) :
             )
             return
         }
-
-        // Draw the red delete background
-//        background.color = backgroundColor
-//        background.setBounds(
-//            itemView.left,
-//            itemView.top,
-//            itemView.right,
-//            itemView.bottom
-//        )
-//        background.draw(c)
 
         // Calculate position of delete icon
         val deleteIconTop = itemView.top + (itemHeight - intrinsicHeight) / 2

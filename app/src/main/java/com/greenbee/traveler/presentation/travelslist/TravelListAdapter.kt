@@ -70,5 +70,4 @@ class TravelListAdapter(val clickListener: TripListener) :
         fun onClick(trip: Trip, imageView: ImageView) =
             clickListener(trip.id, imageView, trip.backgroundUrl)
     }
-
 }
