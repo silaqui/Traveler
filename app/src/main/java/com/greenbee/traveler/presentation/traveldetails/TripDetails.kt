@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.SnapHelper
 import androidx.transition.*
 import androidx.transition.Transition.TransitionListener
+import com.greenbee.traveler.LIST_DETAIL_HERO_TAG
 import com.greenbee.traveler.R
 import com.greenbee.traveler.data.Interactors
 import com.greenbee.traveler.databinding.TripDetailsFragmentBinding
@@ -51,9 +52,7 @@ class TripDetails : Fragment() {
         binding.categoriesCard.adapter = adapter
 
         viewModel.trip.observe(viewLifecycleOwner, Observer {
-            it?.let {
-                adapter.submitList(it.categories)
-            }
+            it?.let { adapter.addAddCategoryAndSubmitList(it.categories) }
         })
 
 
@@ -98,7 +97,7 @@ class TripDetails : Fragment() {
             binding.backgroundImage.setImageResource(resID)
 
             binding.backgroundImage.apply {
-                transitionName = "TRANSITION_IMAGE_" + arguments.tripId
+                transitionName = "$LIST_DETAIL_HERO_TAG${arguments.tripId}"
             }
         } else {
             showTitleAndCategoriesCards()

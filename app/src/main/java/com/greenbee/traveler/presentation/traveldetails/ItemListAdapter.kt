@@ -16,82 +16,62 @@ import com.greenbee.traveler.domain.entities.Item
 import com.greenbee.traveler.features.usecases.AddOrUpdateItem
 import kotlinx.android.synthetic.main.item_list_add_item.view.*
 import kotlinx.android.synthetic.main.item_list_item.view.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
-private val ADD_ITEM_TYPE = 1
-private val ITEM_TYPE = 0
+private const val ADD_ITEM_TYPE = 1
+private const val ITEM_TYPE = 0
 
 class ItemListAdapter(val tripId: String, val categoryId: String, val interactors: Interactors) :
-    ListAdapter<Item, RecyclerView.ViewHolder>(ItemDiffUtilCallback()) {
+    ListAdapter<ItemListAdapter.DataItem, RecyclerView.ViewHolder>(ItemDiffUtilCallback()) {
+
+    private val adapterScope = CoroutineScope(Dispatchers.Default)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val inflater = LayoutInflater.from(parent.context)
         return when (viewType) {
-            ADD_ITEM_TYPE -> addItemViewHolder(inflater, parent)
-            else -> itemViewHolder(inflater, parent)
+            ADD_ITEM_TYPE -> AddItemViewHolder(
+                inflater.inflate(R.layout.item_list_add_item, parent, false)
+            )
+            ITEM_TYPE -> ItemViewHolder(
+                inflater.inflate(R.layout.item_list_item, parent, false)
+            )
+            else -> throw ClassCastException("Unknown viewType $viewType")
         }
-    }
-
-    private fun itemViewHolder(
-        inflater: LayoutInflater,
-        parent: ViewGroup
-    ): ItemViewHolder {
-        return ItemViewHolder(
-            inflater.inflate(
-                R.layout.item_list_item,
-                parent,
-                false
-            )
-        )
-    }
-
-    private fun addItemViewHolder(
-        inflater: LayoutInflater,
-        parent: ViewGroup
-    ): AddItemViewHolder {
-        return AddItemViewHolder(
-            inflater.inflate(
-                R.layout.item_list_add_item,
-                parent,
-                false
-            )
-        )
-    }
-
-    override fun getItemCount(): Int {
-        return super.getItemCount() + 1
     }
 
     override fun getItemViewType(position: Int): Int {
-        return if (position == itemCount - 1) ADD_ITEM_TYPE else ITEM_TYPE
+        return when (getItem(position)) {
+            is DataItem.AddItem -> ADD_ITEM_TYPE
+            is DataItem.ItemHolder -> ITEM_TYPE
+        }
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        if (position == itemCount - 1) {
-            bindAddNewItem(holder)
-        } else {
-            bindItem(position, holder)
+        when (val listItem = getItem(position)) {
+            is DataItem.AddItem -> bindAddNewItem((holder as AddItemViewHolder))
+            is DataItem.ItemHolder -> bindItem((holder as ItemViewHolder), listItem)
         }
     }
 
-    private fun bindItem(position: Int, holder: RecyclerView.ViewHolder) {
-        getItem(position).let { item ->
-            (holder as ItemViewHolder).name.text = item.name
-            holder.checkBox.isChecked = item.isDone
-            holder.checkBox.setOnClickListener {
-                interactors
-                    .addOrUpdateItem(
-                        AddOrUpdateItem.Params(
-                            tripId,
-                            categoryId,
-                            item.copy(isDone = !item.isDone)
-                        )
-                    ) {}
-            }
+    private fun bindItem(holder: ItemViewHolder, itemHolder: DataItem.ItemHolder) {
+        holder.name.text = itemHolder.item.name
+        holder.checkBox.isChecked = itemHolder.item.isDone
+        holder.checkBox.setOnClickListener {
+            interactors
+                .addOrUpdateItem(
+                    AddOrUpdateItem.Params(
+                        tripId,
+                        categoryId,
+                        itemHolder.item.copy(isDone = !itemHolder.item.isDone)
+                    )
+                ) {}
         }
     }
 
-    private fun bindAddNewItem(holder: RecyclerView.ViewHolder) {
-        (holder as AddItemViewHolder)
+    private fun bindAddNewItem(holder: AddItemViewHolder) {
         holder.newButton.setOnClickListener {
             holder.newButton.visibility = View.GONE
             holder.name.visibility = View.VISIBLE
@@ -119,13 +99,6 @@ class ItemListAdapter(val tripId: String, val categoryId: String, val interactor
         }
     }
 
-    class ItemDiffUtilCallback : DiffUtil.ItemCallback<Item>() {
-        override fun areItemsTheSame(oldItem: Item, newItem: Item): Boolean =
-            oldItem.id == newItem.id
-
-        override fun areContentsTheSame(oldItem: Item, newItem: Item): Boolean = oldItem == newItem
-    }
-
     class AddItemViewHolder(root: View) : RecyclerView.ViewHolder(root) {
         val newButton: ImageButton = root.imageButton
         val name: EditText = root.new_item_name
@@ -138,8 +111,35 @@ class ItemListAdapter(val tripId: String, val categoryId: String, val interactor
         val checkBox: CheckBox = root.item_check_box
     }
 
-    class ItemListener(val clickListener: (item: Item) -> Unit) {
-        fun onClick(item: Item) =
-            clickListener(item)
+    fun addAddItemAndSubmitList(list: List<Item>?) {
+        adapterScope.launch {
+            val items = when (list) {
+                null -> listOf(DataItem.AddItem)
+                else -> list.map { DataItem.ItemHolder(it) } + listOf(DataItem.AddItem)
+            }
+            withContext(Dispatchers.Main) { submitList(items) }
+        }
+    }
+
+    class ItemDiffUtilCallback : DiffUtil.ItemCallback<DataItem>() {
+        override fun areItemsTheSame(oldItem: DataItem, newItem: DataItem): Boolean =
+            oldItem.id == newItem.id
+
+        override fun areContentsTheSame(oldItem: DataItem, newItem: DataItem): Boolean =
+            oldItem == newItem
+
+    }
+
+    sealed class DataItem {
+        abstract val id: String
+
+        data class ItemHolder(val item: Item) : DataItem() {
+            override val id = item.id
+        }
+
+        object AddItem : DataItem() {
+            override val id = Long.MIN_VALUE.toString()
+        }
+
     }
 }

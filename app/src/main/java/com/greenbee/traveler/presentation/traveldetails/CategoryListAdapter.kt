@@ -15,93 +15,110 @@ import com.greenbee.traveler.features.usecases.AddOrUpdateCategory
 import kotlinx.android.synthetic.main.item_add_category.view.cardView
 import kotlinx.android.synthetic.main.item_add_category.view.title
 import kotlinx.android.synthetic.main.item_category.view.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
-private val ADD_CATEGORY_TYPE = 1
-private val CATEGORY_TYPE = 0
+private const val ADD_CATEGORY_TYPE = 1
+private const val CATEGORY_TYPE = 0
 
 class CategoryListAdapter(val tripId: String, val interactors: Interactors) :
-    ListAdapter<Category, RecyclerView.ViewHolder>(ItemDiffUtilCallback()) {
+    ListAdapter<CategoryListAdapter.DataItem, RecyclerView.ViewHolder>(ItemDiffUtilCallback()) {
+
+    private val adapterScope = CoroutineScope(Dispatchers.Default)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val inflater = LayoutInflater.from(parent.context)
         return when (viewType) {
-            ADD_CATEGORY_TYPE -> addCategoryViewHolder(inflater, parent)
-            else -> categoryViewHolder(inflater, parent)
+            ADD_CATEGORY_TYPE -> AddCategoryViewHolder(
+                inflater.inflate(R.layout.item_add_category, parent, false)
+            )
+            CATEGORY_TYPE -> CategoryViewHolder(
+                inflater.inflate(R.layout.item_category, parent, false)
+            )
+            else -> throw ClassCastException("Unknown viewType $viewType")
         }
     }
 
-    private fun addCategoryViewHolder(
-        inflater: LayoutInflater,
-        parent: ViewGroup
-    ): AddCategoryViewHolder {
-        return AddCategoryViewHolder(
-            inflater.inflate(
-                R.layout.item_add_category, parent, false
-            )
-        )
-    }
-
-    private fun categoryViewHolder(
-        inflater: LayoutInflater,
-        parent: ViewGroup
-    ): CategoryViewHolder {
-        return CategoryViewHolder(
-            inflater.inflate(
-                R.layout.item_category, parent, false
-            )
-        )
-    }
-
-
-    override fun getItemCount(): Int {
-        return super.getItemCount() + 1
-    }
-
     override fun getItemViewType(position: Int): Int {
-        return if (position == itemCount - 1) ADD_CATEGORY_TYPE else CATEGORY_TYPE
+        return when (getItem(position)) {
+            is DataItem.AddCategory -> ADD_CATEGORY_TYPE
+            is DataItem.CategoryHolder -> CATEGORY_TYPE
+        }
+    }
+
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        when (val listItem = getItem(position)) {
+            is DataItem.AddCategory -> bindAddCategory((holder as AddCategoryViewHolder))
+            is DataItem.CategoryHolder -> bindCategory((holder as CategoryViewHolder), listItem)
+        }
+    }
+
+    private fun bindCategory(holder: CategoryViewHolder, categoryHolder: DataItem.CategoryHolder) {
+        holder.title.text = categoryHolder.category.id
+        val adapter = ItemListAdapter(tripId, categoryHolder.id, interactors)
+        adapter.addAddItemAndSubmitList(categoryHolder.category.items)
+        holder.recyclerView.adapter = adapter
+    }
+
+    private fun bindAddCategory(holder: AddCategoryViewHolder) {
+        holder.cardView.setOnClickListener {
+            interactors.addOrUpdateCategory(
+                AddOrUpdateCategory.Params(
+                    tripId,
+                    Category(title = "NEW")
+                )
+            ) {}
+        }
     }
 
     class AddCategoryViewHolder(root: View) : RecyclerView.ViewHolder(root) {
         val cardView: CardView = root.cardView
     }
 
-
     class CategoryViewHolder(root: View) : RecyclerView.ViewHolder(root) {
         val title: TextView = root.title
         val recyclerView: RecyclerView = root.rec_list_fragment
     }
 
-
-    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        if (position == itemCount - 1) {
-            (holder as AddCategoryViewHolder)
-            holder.cardView.setOnClickListener {
-                interactors.addOrUpdateCategory(
-                    AddOrUpdateCategory.Params(
-                        tripId,
-                        Category(title = "NEW")
-                    )
-                ) {}
+    fun addAddCategoryAndSubmitList(list: List<Category>?) {
+        adapterScope.launch {
+            val items = when (list) {
+                null -> listOf(DataItem.AddCategory)
+                else -> list.map { DataItem.CategoryHolder(it) } + listOf(DataItem.AddCategory)
             }
-
-        } else {
-            (holder as CategoryViewHolder)
-            holder.title.text = getItem(position).title
-            val adapter =
-                ItemListAdapter(tripId, getItem(position).id, interactors)
-            adapter.submitList(getItem(position).items)
-            holder.recyclerView.adapter = adapter
-
+            withContext(Dispatchers.Main) {
+                submitList(items)
+            }
         }
     }
 
+    class ItemDiffUtilCallback : DiffUtil.ItemCallback<DataItem>() {
+        override fun areItemsTheSame(oldItem: DataItem, newItem: DataItem): Boolean =
+            oldItem.id == newItem.id
 
-    class ItemDiffUtilCallback : DiffUtil.ItemCallback<Category>() {
-        override fun areItemsTheSame(oldCategory: Category, newCategory: Category): Boolean =
-            oldCategory.id == newCategory.id
+        override fun areContentsTheSame(oldItem: DataItem, newItem: DataItem): Boolean {
 
-        override fun areContentsTheSame(oldCategory: Category, newCategory: Category): Boolean =
-            oldCategory == newCategory
+            if (oldItem is DataItem.CategoryHolder && newItem is DataItem.CategoryHolder) {
+
+            }
+
+            return oldItem == newItem
+        }
+    }
+
+    sealed class DataItem {
+        abstract val id: String
+
+        data class CategoryHolder(val category: Category) : DataItem() {
+            override val id = category.id
+        }
+
+        object AddCategory : DataItem() {
+            override val id = Long.MIN_VALUE.toString()
+        }
+
     }
 
 
