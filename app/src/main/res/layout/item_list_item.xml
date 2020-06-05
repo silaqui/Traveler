@@ -5,6 +5,13 @@
 
     <data>
 
+        <variable
+            name="item"
+            type="com.greenbee.traveler.domain.entities.Item" />
+
+        <variable
+            name="handler"
+            type="com.greenbee.traveler.presentation.traveldetails.ItemListAdapter.Handler" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -23,13 +30,16 @@
             app:layout_constraintEnd_toStartOf="@+id/item_check_box"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
+            android:text="@{item.name}"
             tools:text="Skarpetek 100" />
 
         <CheckBox
+            android:checked="@{item.done}"
             android:id="@+id/item_check_box"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="12dp"
+            android:onClick="@{() -> handler.toggleItemDone(item)}"
             app:layout_constraintBottom_toBottomOf="@+id/item_name"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@+id/item_name" />

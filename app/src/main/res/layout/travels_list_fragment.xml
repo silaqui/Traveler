@@ -52,12 +52,10 @@
             android:layout_marginStart="32dp"
 
             android:background="@color/colorAccent"
-
             android:elevation="10dp"
-            app:cardCornerRadius="24dp"
+            app:cardCornerRadius="28dp"
             app:layout_constraintBottom_toBottomOf="@+id/add_fab"
             app:layout_constraintEnd_toEndOf="@+id/add_fab"
-
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/add_fab">
 

@@ -9,7 +9,7 @@
         android:id="@+id/travelsList"
         tools:layout="@layout/travels_list_fragment"
         android:name="com.greenbee.traveler.presentation.travelslist.TravelList"
-        android:label="TravelsList" >
+        android:label="Travels List">
         <action
             android:id="@+id/action_travelsList_to_tripDetails"
             app:destination="@id/tripDetails"
@@ -20,7 +20,7 @@
     <fragment
         android:id="@+id/tripDetails"
         android:name="com.greenbee.traveler.presentation.traveldetails.TripDetails"
-        android:label="fragment_trip_details"
+        android:label="Trip Details"
         tools:layout="@layout/trip_details_fragment" >
         <action
             android:id="@+id/action_tripDetails_to_travelsList"
@@ -36,6 +36,6 @@
     <fragment
         android:id="@+id/aboutFragment"
         android:name="com.greenbee.traveler.presentation.about.AboutFragment"
-        android:label="fragment_about"
+        android:label="About"
         tools:layout="@layout/fragment_about" />
 </navigation>

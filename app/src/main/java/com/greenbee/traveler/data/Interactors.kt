@@ -16,7 +16,8 @@ class Interactors(
     val addOrUpdateItem: AddOrUpdateItem,
     val removeTrip: RemoveTrip,
     val removeCategory: RemoveCategory,
-    val removeItem: RemoveItem
+    val removeItem: RemoveItem,
+    val toggleItemDone: ToggleItemDone
 ) {
     companion object {
 
@@ -39,7 +40,8 @@ class Interactors(
                 AddOrUpdateItem(travelerRepository),
                 RemoveTrip(travelerRepository),
                 RemoveCategory(travelerRepository),
-                RemoveItem(travelerRepository)
+                RemoveItem(travelerRepository),
+                ToggleItemDone(travelerRepository)
             )
         }
 

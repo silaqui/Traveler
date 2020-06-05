@@ -26,6 +26,8 @@ private const val CATEGORY_TYPE = 0
 class CategoryListAdapter(val tripId: String, val interactors: Interactors) :
     ListAdapter<CategoryListAdapter.DataItem, RecyclerView.ViewHolder>(ItemDiffUtilCallback()) {
 
+    private val viewPool: RecyclerView.RecycledViewPool = RecyclerView.RecycledViewPool()
+
     private val adapterScope = CoroutineScope(Dispatchers.Default)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
@@ -57,7 +59,12 @@ class CategoryListAdapter(val tripId: String, val interactors: Interactors) :
 
     private fun bindCategory(holder: CategoryViewHolder, categoryHolder: DataItem.CategoryHolder) {
         holder.title.text = categoryHolder.category.id
+        holder.recyclerView.setRecycledViewPool(viewPool)
+
         val adapter = ItemListAdapter(tripId, categoryHolder.id, interactors)
+
+
+
         adapter.addAddItemAndSubmitList(categoryHolder.category.items)
         holder.recyclerView.adapter = adapter
     }
@@ -98,14 +105,8 @@ class CategoryListAdapter(val tripId: String, val interactors: Interactors) :
         override fun areItemsTheSame(oldItem: DataItem, newItem: DataItem): Boolean =
             oldItem.id == newItem.id
 
-        override fun areContentsTheSame(oldItem: DataItem, newItem: DataItem): Boolean {
-
-            if (oldItem is DataItem.CategoryHolder && newItem is DataItem.CategoryHolder) {
-
-            }
-
-            return oldItem == newItem
-        }
+        override fun areContentsTheSame(oldItem: DataItem, newItem: DataItem): Boolean =
+            oldItem == newItem
     }
 
     sealed class DataItem {
